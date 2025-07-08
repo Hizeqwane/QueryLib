@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QueryLib.Extensions;
 using QueryLib.Models.Input;
+using QueryLib.Specifications;
 using QueryLib.Specifications.Interfaces;
 
 namespace QueryLib.Demo.Data;
@@ -11,7 +12,11 @@ public class DataProvider(
     : IDataProvider
 {
     /// <inheritdoc />
-    public async Task<List<T>> GetListAsync<T>(PageableQuery pageableQuery, IFilterSpecification<T> filterSpec, IEnumerable<ISortSpecification<T>> sorts,
+    public async Task<List<T>> GetListAsync<T>(
+        PageableQuery pageableQuery,
+        IFilterSpecification<T> filterSpec,
+        IEnumerable<ISortSpecification<T>> sorts,
+        ModifierDelegate<T> modifier,
         CancellationToken cancellationToken)
         where T : class
     {
@@ -25,8 +30,13 @@ public class DataProvider(
         if (query.TryGetOrdered(sorts, out var ordered))
             query = ordered;
 
-        return await query
+        var list = await query
             .GetSkipTake(pageableQuery)
             .ToListAsync(cancellationToken: cancellationToken);
+
+        if (modifier != null)
+            list = list.Select(s => modifier(s)).ToList();
+
+        return list;
     }
 }

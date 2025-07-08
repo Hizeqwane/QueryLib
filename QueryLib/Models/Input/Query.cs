@@ -5,7 +5,8 @@ namespace QueryLib.Models.Input;
 /// </summary>
 public class Query(
     IEnumerable<QueryFilter> filters,
-    IEnumerable<QuerySort> sorts)
+    IEnumerable<QuerySort> sorts,
+    IEnumerable<QueryModifier> modifiers)
     : PageableQuery
 {
     /// <summary>
@@ -17,4 +18,9 @@ public class Query(
     /// Сортировки
     /// </summary>
     public IEnumerable<QuerySort> Sorts { get; } = sorts;
+    
+    /// <summary>
+    /// Модификаторы
+    /// </summary>
+    public IEnumerable<QueryModifier> Modifiers { get; } = modifiers;
 }

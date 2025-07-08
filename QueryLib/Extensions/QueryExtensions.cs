@@ -1,5 +1,6 @@
 using QueryLib.Models;
 using QueryLib.Models.Input;
+using QueryLib.Specifications;
 using QueryLib.Specifications.Interfaces;
 
 namespace QueryLib.Extensions;
@@ -64,5 +65,29 @@ public static class QueryExtensions
             if (spec != null)
                 yield return spec;
         }
+    }
+    
+    /// <summary>
+    /// Преобразовать response в соответствии с модификаторами
+    /// </summary>
+    public static ModifierDelegate<TResponse> ToModifier<TResponse>(this Query query,
+        IEnumerable<Modifier<TResponse>> modifierDescriptions)
+    {
+        var modifierDescriptionList = modifierDescriptions?.ToList() ?? [];
+        if (query?.Modifiers?.Any() != true || modifierDescriptionList.Count == 0) 
+            return null;
+
+        ModifierDelegate<TResponse> accumulateFunc = response => response;
+        
+        foreach (var queryModification in query.Modifiers)
+        {
+            var foundedModifier = modifierDescriptionList.FirstOrDefault(s =>
+                s.Key.EqualsCaseInsensitive(queryModification.Key));
+
+            if (foundedModifier != null)
+                accumulateFunc += foundedModifier.ModificationFunc;
+        }
+
+        return accumulateFunc;
     }
 }

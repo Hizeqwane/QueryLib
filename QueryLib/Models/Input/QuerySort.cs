@@ -3,13 +3,8 @@ namespace QueryLib.Models.Input;
 /// <summary>
 /// Запрос - сортировка
 /// </summary>
-public class QuerySort
+public class QuerySort : BaseQueryUnit
 {
-    /// <summary>
-    /// Ключ
-    /// </summary>
-    public string Key { get; set; }
-
     /// <summary>
     /// Напрвеление сортировки
     /// </summary>
